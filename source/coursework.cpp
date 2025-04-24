@@ -41,6 +41,18 @@ struct Object
 };
 
 
+void addWall(std::vector<Object>& objects, glm::vec3 position, glm::vec3 scale) {
+    Object wall;
+    wall.name = "wall";
+    wall.position = position;
+    wall.scale = scale;
+    wall.rotation = glm::vec3(0.0f);
+    wall.angle = 0.0f;
+    objects.push_back(wall);
+}
+
+
+
 
 
 
@@ -245,6 +257,15 @@ int main( void )
 
     //Cube positions
     glm::vec3 positions[] = {
+        glm::vec3(0.0f,  0.0f,  0.0f),
+        glm::vec3(2.0f,  5.0f, -10.0f),
+        glm::vec3(-3.0f, -2.0f, -3.0f),
+        glm::vec3(-4.0f, -2.0f, -8.0f),
+        glm::vec3(2.0f,  2.0f, -6.0f),
+        glm::vec3(-4.0f,  3.0f, -8.0f),
+        glm::vec3(0.0f, -2.0f, -5.0f),
+        glm::vec3(4.0f,  2.0f, -4.0f),
+        glm::vec3(2.0f,  0.0f, -2.0f),
         glm::vec3(-1.0f,  1.0f, -2.0f)
     };
 
@@ -260,6 +281,12 @@ int main( void )
         object.angle = Maths::radians(20.0f * i);
         objects.push_back(object);
     }
+
+
+
+    addWall(objects, glm::vec3(0.0f, 0.0f, -5.0f), glm::vec3(10.0f, 3.0f, 0.2f));
+
+
 
     //Render loop
     while (!glfwWindowShouldClose(window))
@@ -378,4 +405,8 @@ void mouseInput(GLFWwindow* window)
     //Calculate camera vectors from the yaw and pitch angles
     camera.calculateCameraVectors();
 }
+
+
+
+
 
