@@ -16,7 +16,7 @@ void keyboardInput(GLFWwindow *window);
 void mouseInput(GLFWwindow* window);
 
 //Camera Object
-Camera camera(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, -2.0f));
+Camera camera(glm::vec3(5.0f, 0.0f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 
 //Frame timer
 float previousTime = 0.0f;    //time of previous iteration of the loop
@@ -41,15 +41,7 @@ struct Object
 };
 
 
-void addWall(std::vector<Object>& objects, glm::vec3 position, glm::vec3 scale) {
-    Object wall;
-    wall.name = "wall";
-    wall.position = position;
-    wall.scale = scale;
-    wall.rotation = glm::vec3(0.0f);
-    wall.angle = 0.0f;
-    objects.push_back(wall);
-}
+
 
 
 
@@ -247,40 +239,80 @@ int main( void )
 
     //Load the textures
     unsigned int texture;
-    texture = loadTexture("../assets/crate.jpg");
+    texture = loadTexture("../assets/Wall.jpg");
 
     //Send the texture uniforms to the fragment shader
     glUseProgram(shaderID);
     unsigned int textureID;
-    textureID = glGetUniformLocation(shaderID, "texture");
+    textureID = glGetUniformLocation(shaderID, "textureMap");
     glUniform1i(textureID, 0);
 
-    //Cube positions
-    glm::vec3 positions[] = {
-        glm::vec3(0.0f,  0.0f,  0.0f),
-        glm::vec3(2.0f,  5.0f, -10.0f),
-        glm::vec3(-3.0f, -2.0f, -3.0f),
-        glm::vec3(-4.0f, -2.0f, -8.0f),
-        glm::vec3(2.0f,  2.0f, -6.0f),
-        glm::vec3(-4.0f,  3.0f, -8.0f),
-        glm::vec3(0.0f, -2.0f, -5.0f),
-        glm::vec3(4.0f,  2.0f, -4.0f),
-        glm::vec3(2.0f,  0.0f, -2.0f),
-        glm::vec3(-1.0f,  1.0f, -2.0f)
-    };
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
 
-    //Add cubes to objects vector
     std::vector<Object> objects;
     Object object;
     object.name = "cube";
-    for (unsigned int i = 0; i < 1; i++)
-    {
-        object.position = positions[i];
-        object.rotation = glm::vec3(1.0f, 1.0f, 1.0f);
-        object.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-        object.angle = 0.0f;
-        objects.push_back(object);
+    object.rotation = glm::vec3(1.0f, 1.0f, 1.0f);
+    object.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    object.angle = 0.0f;
+
+    //RoomStart\\-------------------
+
+    //Floor
+    for (float x = 2.0f; x <= 10.0f; x += 2.0f) {
+        for (float z = 2.0f; z <= 10.0f; z += 2.0f) {
+            object.position = glm::vec3(x, -2.0f, z);
+            objects.push_back(object);
+        }
     }
+
+    //Roof
+    for (float x = 0.0f; x <= 12.0f; x += 2.0f) {
+        for (float z = 0.0f; z <= 12.0f; z += 2.0f) {
+            object.position = glm::vec3(x, 6.0f, z);
+            objects.push_back(object);
+        }
+    }
+
+
+    //Left Wall 
+    for (float x = 0.0f; x <= 12.0f; x += 2.0f) {
+        for (float y = 0.0f; y <= 4.0f; y += 2.0f) {
+            object.position = glm::vec3(x, y, 0.0f);
+            objects.push_back(object);
+        }
+    }
+
+    //Back Wall 
+    for (float z = 2.0f; z <= 12.0f; z += 2.0f) {
+        for (float y = 0.0f; y <= 4.0f; y += 2.0f) {
+            object.position = glm::vec3(0.0f, y, z);
+            objects.push_back(object);
+        }
+    }
+
+    //Right Wall 
+    for (float x = 2.0f; x <= 12.0f; x += 2.0f) {
+        for (float y = 0.0f; y <= 4.0f; y += 2.0f) {
+            object.position = glm::vec3(x, y, 12.0f);
+            objects.push_back(object);
+        }
+    }
+
+    //Front Wall 
+    for (float z = 0.0f; z <= 12.0f; z += 2.0f) {
+        for (float y = 0.0f; y <= 4.0f; y += 2.0f) {
+            object.position = glm::vec3(12.0f, y, z);
+            objects.push_back(object);
+        }
+    }
+
+    //EndRoom\\----------------------------
+
+
+
+
 
 
 
