@@ -19,8 +19,8 @@ void mouseInput(GLFWwindow* window);
 Camera camera(glm::vec3(5.0f, 0.0f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 
 //Frame timer
-float previousTime = 0.0f;    //time of previous iteration of the loop
-float deltaTime = 0.0f;    //time elapsed since last iteration of the loop
+float previousTime = 0.0f;    
+float deltaTime = 0.0f;   
 
 //MouseMovement
 float mouseSensitivity = 0.5f; //MouseSens
@@ -82,7 +82,7 @@ int main( void )
     glfwMakeContextCurrent(window);
 
     //Initialize GLEW
-    glewExperimental = true; // Needed for core profile
+    glewExperimental = true; //Needed for core profile
     if (glewInit() != GLEW_OK) {
         fprintf(stderr, "Failed to initialize GLEW\n");
         getchar();
