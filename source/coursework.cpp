@@ -92,6 +92,11 @@ int main( void )
     // -------------------------------------------------------------------------
     // End of window creation
     // =========================================================================
+
+    Model swordModel("../assets/sword.obj");
+
+   
+
     
     //Enable depth test
     glEnable(GL_DEPTH_TEST);
@@ -250,12 +255,24 @@ int main( void )
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
 
+
+    //Cube (Walls) 
     std::vector<Object> objects;
     Object object;
     object.name = "cube";
     object.rotation = glm::vec3(1.0f, 1.0f, 1.0f);
     object.scale = glm::vec3(1.0f, 1.0f, 1.0f);
     object.angle = 0.0f;
+
+
+    //Sword
+    Object swordObject;
+    swordObject.name = "sword";
+    swordObject.position = glm::vec3(6.0f, -1.0f, 6.0f);
+    swordObject.scale = glm::vec3(0.1f);
+    swordObject.angle = 0.0f;
+    swordObject.rotation = glm::vec3(0.0f, 1.0f, 0.0f);
+    objects.push_back(swordObject);
 
     //RoomStart\\-------------------
 
@@ -325,9 +342,6 @@ int main( void )
     float quadratic = 0.032f;
 
 
-    
-
-
 
     //Render loop
     while (!glfwWindowShouldClose(window))
@@ -345,30 +359,27 @@ int main( void )
         glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //Send VBO
+        //Send VBO 
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-        //Send UV buffer
         glEnableVertexAttribArray(1);
         glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-        //Calculate camera matrices
+        //Camera
         camera.calculateMatrices();
 
-        //Set shared uniforms (view, projection, camera position)
         GLint viewID = glGetUniformLocation(shaderID, "view");
         GLint projID = glGetUniformLocation(shaderID, "projection");
         glUniformMatrix4fv(viewID, 1, GL_FALSE, &camera.view[0][0]);
         glUniformMatrix4fv(projID, 1, GL_FALSE, &camera.projection[0][0]);
 
-        // View position
         GLint viewPosID = glGetUniformLocation(shaderID, "viewPos");
         glUniform3fv(viewPosID, 1, &camera.eye[0]);
 
-        //Set point light uniforms
+        //Lighting
         glUniform3fv(glGetUniformLocation(shaderID, "pointLight.position"), 1, &lightPos[0]);
         glUniform3fv(glGetUniformLocation(shaderID, "pointLight.ambient"), 1, &lightAmbient[0]);
         glUniform3fv(glGetUniformLocation(shaderID, "pointLight.diffuse"), 1, &lightDiffuse[0]);
@@ -377,31 +388,39 @@ int main( void )
         glUniform1f(glGetUniformLocation(shaderID, "pointLight.linear"), linear);
         glUniform1f(glGetUniformLocation(shaderID, "pointLight.quadratic"), quadratic);
 
-        //Loop through objects
-        for (int i = 0; i < static_cast<unsigned int>(objects.size()); i++)
-        {
-            //Calculate model matrix
-            glm::mat4 translate = Maths::translate(objects[i].position);
-            glm::mat4 scale = Maths::scale(objects[i].scale);
-            glm::mat4 rotate = Maths::rotate(objects[i].angle, objects[i].rotation);
-            glm::mat4 model = translate * rotate * scale;
+        //Bind cube VAO before drawing cubes
+        glBindVertexArray(VAO);
 
-            //Send model matrix to shader
-            GLint modelID = glGetUniformLocation(shaderID, "model");
+        for (int i = 0; i < objects.size(); i++)
+        {
+            glm::mat4 model = Maths::translate(objects[i].position)
+                * Maths::rotate(objects[i].angle, objects[i].rotation)
+                * Maths::scale(objects[i].scale);
+
+            GLuint modelID = glGetUniformLocation(shaderID, "model");
             glUniformMatrix4fv(modelID, 1, GL_FALSE, &model[0][0]);
 
-            //Draw elements
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO); 
             glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
         }
+
+        //Draw sword modle
+        glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), swordObject.position);
+        modelMatrix = glm::rotate(modelMatrix, glm::radians(swordObject.angle), swordObject.rotation);
+        modelMatrix = glm::scale(modelMatrix, swordObject.scale);
+
+        GLuint modelLoc = glGetUniformLocation(shaderID, "model");
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &modelMatrix[0][0]);
+
+        swordModel.draw(shaderID); //binds sword VAO
 
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
 
-        // Swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
     //Cleanup
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
