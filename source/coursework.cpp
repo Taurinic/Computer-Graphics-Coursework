@@ -313,7 +313,16 @@ int main( void )
 
 
 
+    // Light settings
+    glm::vec3 lightPos(0.0f, 1.0f, 2.0f); // Example light position
+    glm::vec3 lightAmbient(0.2f, 0.2f, 0.2f);
+    glm::vec3 lightDiffuse(0.8f, 0.8f, 0.8f);
+    glm::vec3 lightSpecular(1.0f, 1.0f, 1.0f);
 
+    // Attenuation constants
+    float constant = 1.0f;
+    float linear = 0.09f;
+    float quadratic = 0.032f;
 
 
     
@@ -323,51 +332,65 @@ int main( void )
     //Render loop
     while (!glfwWindowShouldClose(window))
     {
-
-        //Update timer
+        // Update timer
         float time = glfwGetTime();
         deltaTime = time - previousTime;
         previousTime = time;
 
-        //Get inputs
+        // Input
         keyboardInput(window);
-
         mouseInput(window);
 
-        //Clear the window
+        // Clear
         glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //Send the VBO to the GPU
+        // Send VBO
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-        //Send the UV buffer to the GPU
+        // Send UV buffer
         glEnableVertexAttribArray(1);
         glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-        //Calculate view and projection matrices
+        // Calculate camera matrices
         camera.calculateMatrices();
 
-        //Loop through objects and draw each one
+        // Set shared uniforms (view, projection, camera position)
+        GLint viewID = glGetUniformLocation(shaderID, "view");
+        GLint projID = glGetUniformLocation(shaderID, "projection");
+        glUniformMatrix4fv(viewID, 1, GL_FALSE, &camera.view[0][0]);
+        glUniformMatrix4fv(projID, 1, GL_FALSE, &camera.projection[0][0]);
+
+        // View position
+        GLint viewPosID = glGetUniformLocation(shaderID, "viewPos");
+        glUniform3fv(viewPosID, 1, &camera.eye[0]);
+
+        // Set point light uniforms
+        glUniform3fv(glGetUniformLocation(shaderID, "pointLight.position"), 1, &lightPos[0]);
+        glUniform3fv(glGetUniformLocation(shaderID, "pointLight.ambient"), 1, &lightAmbient[0]);
+        glUniform3fv(glGetUniformLocation(shaderID, "pointLight.diffuse"), 1, &lightDiffuse[0]);
+        glUniform3fv(glGetUniformLocation(shaderID, "pointLight.specular"), 1, &lightSpecular[0]);
+        glUniform1f(glGetUniformLocation(shaderID, "pointLight.constant"), constant);
+        glUniform1f(glGetUniformLocation(shaderID, "pointLight.linear"), linear);
+        glUniform1f(glGetUniformLocation(shaderID, "pointLight.quadratic"), quadratic);
+
+        // Loop through objects
         for (int i = 0; i < static_cast<unsigned int>(objects.size()); i++)
         {
-            //Calculate the model matrix
+            // Calculate model matrix
             glm::mat4 translate = Maths::translate(objects[i].position);
             glm::mat4 scale = Maths::scale(objects[i].scale);
             glm::mat4 rotate = Maths::rotate(objects[i].angle, objects[i].rotation);
             glm::mat4 model = translate * rotate * scale;
 
-            //Calculate the MVP matrix
-            glm::mat4 MVP = camera.projection * camera.view * model;
+            // Send model matrix to shader
+            GLint modelID = glGetUniformLocation(shaderID, "model");
+            glUniformMatrix4fv(modelID, 1, GL_FALSE, &model[0][0]);
 
-            //Send MVP matrix to the vertex shader
-            unsigned int MVPID = glGetUniformLocation(shaderID, "MVP");
-            glUniformMatrix4fv(MVPID, 1, GL_FALSE, &MVP[0][0]);
-
-            //Draw the triangles
+            // Draw elements
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
             glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
         }
@@ -375,11 +398,10 @@ int main( void )
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
 
-        //Swap buffers
+        // Swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
     //Cleanup
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
