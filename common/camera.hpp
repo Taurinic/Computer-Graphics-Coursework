@@ -42,6 +42,11 @@ public:
 	void calculateCameraVectors();
 	void quaternionCamera();
 
+	
+private:
+	glm::mat4 calculateViewMatrix(const glm::vec3& eye, const glm::vec3& target, const glm::vec3& up);
+	glm::mat4 calculateProjectionMatrix(float fov, float aspect, float near, float far);
+
 
 
 

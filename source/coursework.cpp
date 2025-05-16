@@ -397,7 +397,7 @@ void keyboardInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    // Determine current speed
+    //Determine current speed
     float currentSpeed = normalSpeed;
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         currentSpeed *= sprintMulti;
@@ -424,9 +424,9 @@ void mouseInput(GLFWwindow* window)
     glfwSetCursorPos(window, 1024 / 2, 768 / 2);
 
     float offsetX = float(xPos - 1024 / 2);
-    float offsetY = float(768 / 2 - yPos); // Inverted Y
+    float offsetY = float(768 / 2 - yPos); //Inverted Y
 
-    // Apply sensitivity
+    //Apply sensitivity
     offsetX *= mouseSensitivity;
     offsetY *= mouseSensitivity;
 
