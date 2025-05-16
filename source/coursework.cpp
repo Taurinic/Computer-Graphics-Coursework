@@ -157,8 +157,8 @@ int main( void )
     //Define texture coordinates
     const float uv[] = {
         //front
-        0.0f, 0.0f,     //vertex co-ordinates are the same for each side
-        1.0f, 0.0f,     //of the cube so repeat every six vertices
+        0.0f, 0.0f,    
+        1.0f, 0.0f,    
         1.0f, 1.0f,
         0.0f, 0.0f,
         1.0f, 1.0f,
@@ -313,13 +313,13 @@ int main( void )
 
 
 
-    // Light settings
-    glm::vec3 lightPos(0.0f, 1.0f, 2.0f); // Example light position
+    //Light settings
+    glm::vec3 lightPos(0.0f, 1.0f, 2.0f); 
     glm::vec3 lightAmbient(0.2f, 0.2f, 0.2f);
     glm::vec3 lightDiffuse(0.8f, 0.8f, 0.8f);
     glm::vec3 lightSpecular(1.0f, 1.0f, 1.0f);
 
-    // Attenuation constants
+    //Attenuation constants
     float constant = 1.0f;
     float linear = 0.09f;
     float quadratic = 0.032f;
@@ -332,33 +332,33 @@ int main( void )
     //Render loop
     while (!glfwWindowShouldClose(window))
     {
-        // Update timer
+        //Update timer
         float time = glfwGetTime();
         deltaTime = time - previousTime;
         previousTime = time;
 
-        // Input
+        //Input
         keyboardInput(window);
         mouseInput(window);
 
-        // Clear
+        //Clear
         glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Send VBO
+        //Send VBO
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-        // Send UV buffer
+        //Send UV buffer
         glEnableVertexAttribArray(1);
         glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-        // Calculate camera matrices
+        //Calculate camera matrices
         camera.calculateMatrices();
 
-        // Set shared uniforms (view, projection, camera position)
+        //Set shared uniforms (view, projection, camera position)
         GLint viewID = glGetUniformLocation(shaderID, "view");
         GLint projID = glGetUniformLocation(shaderID, "projection");
         glUniformMatrix4fv(viewID, 1, GL_FALSE, &camera.view[0][0]);
@@ -368,7 +368,7 @@ int main( void )
         GLint viewPosID = glGetUniformLocation(shaderID, "viewPos");
         glUniform3fv(viewPosID, 1, &camera.eye[0]);
 
-        // Set point light uniforms
+        //Set point light uniforms
         glUniform3fv(glGetUniformLocation(shaderID, "pointLight.position"), 1, &lightPos[0]);
         glUniform3fv(glGetUniformLocation(shaderID, "pointLight.ambient"), 1, &lightAmbient[0]);
         glUniform3fv(glGetUniformLocation(shaderID, "pointLight.diffuse"), 1, &lightDiffuse[0]);
@@ -377,20 +377,20 @@ int main( void )
         glUniform1f(glGetUniformLocation(shaderID, "pointLight.linear"), linear);
         glUniform1f(glGetUniformLocation(shaderID, "pointLight.quadratic"), quadratic);
 
-        // Loop through objects
+        //Loop through objects
         for (int i = 0; i < static_cast<unsigned int>(objects.size()); i++)
         {
-            // Calculate model matrix
+            //Calculate model matrix
             glm::mat4 translate = Maths::translate(objects[i].position);
             glm::mat4 scale = Maths::scale(objects[i].scale);
             glm::mat4 rotate = Maths::rotate(objects[i].angle, objects[i].rotation);
             glm::mat4 model = translate * rotate * scale;
 
-            // Send model matrix to shader
+            //Send model matrix to shader
             GLint modelID = glGetUniformLocation(shaderID, "model");
             glUniformMatrix4fv(modelID, 1, GL_FALSE, &model[0][0]);
 
-            // Draw elements
+            //Draw elements
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
             glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
         }
